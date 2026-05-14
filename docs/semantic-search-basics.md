@@ -21,6 +21,12 @@ flowchart LR
 ## What It Is
 Semantic search retrieves by meaning, not just matching words. It converts text into vectors and finds documents with nearby embeddings in vector space.
 
+## Concept Diagram
+
+![Semantic search with Redis concept diagram](./assets/semantic-search-with-redis.png)
+
+Both the query and document collection are embedded into vectors, Redis runs HNSW-based vector similarity search, and the top relevant results are returned.
+
 ## How This Codebase Implements It
 This project embeds the query with `HFTextVectorizer` and runs a `VectorQuery` on `plot_embedding`:
 

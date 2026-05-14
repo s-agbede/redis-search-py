@@ -1,5 +1,9 @@
 # Full-Text Search Basics
 
+![Full-text search with Redis](./assets/full-text-search-with-redis.png)
+
+This diagram shows the lexical search path in this project: queries and documents are tokenized into terms, Redis matches against the inverted index, and results are ranked with BM25-style scoring plus field weights.
+
 ## Simple Steps Using RedisVL
 
 ```mermaid

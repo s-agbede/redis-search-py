@@ -1,5 +1,9 @@
 # Hybrid Search Basics
 
+![Hybrid search with Redis](./assets/hybrid-search-with-redis.png)
+
+This diagram shows the combined retrieval path in this project: the same query fans out into both lexical and semantic search, Redis merges those signals with weighted blending or rank fusion, and the app returns one ranked result set.
+
 ## Simple Steps Using RedisVL
 
 ```mermaid
