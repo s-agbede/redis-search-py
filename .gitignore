@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+frontend/dist/
+frontend/.npm-cache/
+backend/.venv/
+backend/.uv-cache/
+__pycache__/
+.pytest_cache/
+*.tsbuildinfo
