@@ -1,8 +1,38 @@
 # Hybrid Search Basics
 
+## What It Is
+Hybrid search combines lexical and semantic retrieval signals to improve robustness across diverse query styles. In this app, you can use weighted hybrid scoring and advanced rank fusion (RRF).
+
+## Concept Diagram
+
 ![Hybrid search with Redis](./assets/hybrid-search-with-redis.png)
 
 This diagram shows the combined retrieval path in this project: the same query fans out into both lexical and semantic search, Redis merges those signals with weighted blending or rank fusion, and the app returns one ranked result set.
+
+## When To Use It (Practical Examples)
+- Production search with broad user behavior variance.
+- E-commerce/catalog experiences balancing exact attributes and intent phrasing.
+- Media discovery where titles/keywords and plot semantics both matter.
+
+## Example Queries
+### Works well for
+- `"spy thriller with emotional depth"`
+- `"magic school adventure with danger"`
+- `"heist with brilliant planner"`
+- `"hero saves world from alien invasion"`
+
+### Weaker fit for
+- `"The Matrix"` when a simple exact-title lookup would likely be handled just as well by full-text alone.
+
+## Strengths
+- Best-of-both behavior for mixed user query styles.
+- Better resilience when some users are keyword-heavy and others are intent-heavy.
+- Supports tunable strategies (`alpha`, `rrf_k`, `rrf_weights`).
+
+## Weaknesses / Limitations
+- More tuning complexity than single-mode retrieval.
+- Harder interpretability and troubleshooting when multiple signals interact.
+- Potentially higher latency from embedding + multi-stage retrieval.
 
 ## Simple Steps Using RedisVL
 
@@ -23,9 +53,6 @@ flowchart LR
 5. Run `AggregateHybridQuery` or combine text and vector rankings with RRF.
 6. Return results that balance exact keyword matches and semantic meaning.
 
-## What It Is
-Hybrid search combines lexical and semantic retrieval signals to improve robustness across diverse query styles. In this app, you can use weighted hybrid scoring and advanced rank fusion (RRF).
-
 ## How This Codebase Implements It
 The weighted hybrid path uses `AggregateHybridQuery` with `alpha` to balance text vs vector influence:
 
@@ -44,24 +71,6 @@ q = AggregateHybridQuery(
 ```
 
 The advanced path fuses independent text and vector rankings with Reciprocal Rank Fusion (RRF).
-
-## Strengths
-- Best-of-both behavior for mixed user query styles.
-- Better resilience when some users are keyword-heavy and others are intent-heavy.
-- Supports tunable strategies (`alpha`, `rrf_k`, `rrf_weights`).
-
-## Weaknesses / Limitations
-- More tuning complexity than single-mode retrieval.
-- Harder interpretability and troubleshooting when multiple signals interact.
-- Potentially higher latency from embedding + multi-stage retrieval.
-
-## Why the Next Mode Exists
-Once hybrid is in place, advanced ranking strategies (RRF and reranking) help stabilize or improve ordering quality when weighted blending alone is not enough.
-
-## When To Use It (Practical Examples)
-- Production search with broad user behavior variance.
-- E-commerce/catalog experiences balancing exact attributes and intent phrasing.
-- Media discovery where titles/keywords and plot semantics both matter.
 
 ## Request/Response Example
 Weighted hybrid request:
@@ -119,6 +128,9 @@ Response fields to read:
   - [`searchAdvancedRrf`](../frontend/src/api.ts#L37)
 - Typed internal row normalization:
   - [`RetrievedRow` schema](../backend/app/schemas.py#L76)
+
+## Why the Next Mode Exists
+Once hybrid is in place, advanced ranking strategies (RRF and reranking) help stabilize or improve ordering quality when weighted blending alone is not enough.
 
 ## Comparison Table: Full-Text vs Semantic vs Hybrid
 | Mode | Best For | Strengths | Weaknesses / Limitations | Typical Query Style | Explainability | Latency Profile | Tuning Required |

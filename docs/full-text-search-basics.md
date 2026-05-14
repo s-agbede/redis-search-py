@@ -1,8 +1,38 @@
 # Full-Text Search Basics
 
+## What It Is
+Full-text search is lexical retrieval: it ranks documents based on how query terms appear in indexed text fields. In this project, it is strongest when users type specific keywords that should appear in movie `title` or `plot`.
+
+## Concept Diagram
+
 ![Full-text search with Redis](./assets/full-text-search-with-redis.png)
 
 This diagram shows the lexical search path in this project: queries and documents are tokenized into terms, Redis matches against the inverted index, and results are ranked with BM25-style scoring plus field weights.
+
+## When To Use It (Practical Examples)
+- Exact-title or near-exact-title lookup.
+- Legal/policy/product keyword search where exact wording matters.
+- Log/event filtering by concrete tokens or IDs.
+
+## Example Queries
+### Works well for
+- `"criminal mastermind"`
+- `"space mission"`
+- `"family comedy"`
+- `"The Godfather"`
+
+### Weaker fit for
+- `"a teacher inspires troubled students"` because the intent is clear, but the exact phrasing may not appear in the indexed text.
+
+## Strengths
+- High precision for exact terms and phrases.
+- Fast ranking with clear lexical relevance behavior.
+- Great for queries where users know the exact words.
+
+## Weaknesses / Limitations
+- Brittle with synonyms and paraphrases (`"heist mastermind"` vs `"criminal planner"`).
+- Misses intent when the wording differs from indexed text.
+- Can over-favor keyword frequency over semantic meaning.
 
 ## Simple Steps Using RedisVL
 
@@ -21,9 +51,6 @@ flowchart LR
 4. Send the user query through `TextQuery`.
 5. Redis ranks documents by lexical matches and returns the top results.
 
-## What It Is
-Full-text search is lexical retrieval: it ranks documents based on how query terms appear in indexed text fields. In this project, it is strongest when users type specific keywords that should appear in movie `title` or `plot`.
-
 ## How This Codebase Implements It
 The backend builds a `TextQuery` and executes it against Redis with weighted text fields (`title` weighted above `plot`):
 
@@ -38,25 +65,9 @@ q = TextQuery(
 )
 ```
 
+Redis then applies BM25-style ranking, where term overlap, field weighting, and term rarity all influence the final score.
+
 The route is exposed at `POST /api/search/text`, and the frontend calls it through `searchText(...)`.
-
-## Strengths
-- High precision for exact terms and phrases.
-- Fast ranking with clear lexical relevance behavior.
-- Great for queries where users know the exact words.
-
-## Weaknesses / Limitations
-- Brittle with synonyms and paraphrases (`"heist mastermind"` vs `"criminal planner"`).
-- Misses intent when the wording differs from indexed text.
-- Can over-favor keyword frequency over semantic meaning.
-
-## Why the Next Mode Exists
-Semantic search exists because users do not always type the exact words present in documents. We need vector-based intent matching for paraphrases and concept-level similarity.
-
-## When To Use It (Practical Examples)
-- Exact-title or near-exact-title lookup.
-- Legal/policy/product keyword search where exact wording matters.
-- Log/event filtering by concrete tokens or IDs.
 
 ## Request/Response Example
 Request:
@@ -89,6 +100,9 @@ Response fields to read:
   - [`searchText`](../frontend/src/api.ts#L25)
 - Related typed row normalization:
   - [`RetrievedRow` schema](../backend/app/schemas.py#L76)
+
+## Why the Next Mode Exists
+Semantic search exists because users do not always type the exact words present in documents. We need vector-based intent matching for paraphrases and concept-level similarity.
 
 ## Cross-Mode Comparison
 For a consolidated comparison table across Full-Text, Semantic, and Hybrid, see:

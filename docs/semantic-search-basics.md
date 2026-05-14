@@ -1,5 +1,39 @@
 # Semantic Search Basics
 
+## What It Is
+Semantic search retrieves by meaning, not just matching words. It converts text into vectors and finds documents with nearby embeddings in vector space.
+
+## Concept Diagram
+
+![Semantic search with Redis concept diagram](./assets/semantic-search-with-redis.png)
+
+Both the query and document collection are embedded into vectors, Redis runs HNSW-based vector similarity search, and the top relevant results are returned.
+
+## When To Use It (Practical Examples)
+- Natural-language discovery (`"movie about redemption after war"`).
+- Support/help search with many paraphrased user questions.
+- Content exploration where user vocabulary varies widely.
+
+## Example Queries
+### Works well for
+- `"movie about redemption after war"`
+- `"a teacher inspires troubled students"`
+- `"coming-of-age emotional journey"`
+- `"lonely astronaut rediscovers purpose"`
+
+### Weaker fit for
+- `"tt0111161"` or another exact ID/token query where strict lexical matching matters more than meaning.
+
+## Strengths
+- Handles paraphrases and intent-level queries well.
+- Improves discovery when users describe concepts, not exact terms.
+- Works well for natural-language search UX.
+
+## Weaknesses / Limitations
+- Less reliable for strict exact-token constraints.
+- Can return conceptually related but lexically unexpected results.
+- Requires embedding compute (`embed_ms`) and model/runtime dependencies.
+
 ## Simple Steps Using RedisVL
 
 ```mermaid
@@ -18,15 +52,6 @@ flowchart LR
 4. Convert the user query into an embedding vector.
 5. Run `VectorQuery` to find the nearest matching plots by meaning.
 
-## What It Is
-Semantic search retrieves by meaning, not just matching words. It converts text into vectors and finds documents with nearby embeddings in vector space.
-
-## Concept Diagram
-
-![Semantic search with Redis concept diagram](./assets/semantic-search-with-redis.png)
-
-Both the query and document collection are embedded into vectors, Redis runs HNSW-based vector similarity search, and the top relevant results are returned.
-
 ## How This Codebase Implements It
 This project embeds the query with `HFTextVectorizer` and runs a `VectorQuery` on `plot_embedding`:
 
@@ -43,24 +68,6 @@ q = VectorQuery(
 ```
 
 Rows are validated through a typed Pydantic model (`RetrievedRow`) before they are transformed to API results.
-
-## Strengths
-- Handles paraphrases and intent-level queries well.
-- Improves discovery when users describe concepts, not exact terms.
-- Works well for natural-language search UX.
-
-## Weaknesses / Limitations
-- Less reliable for strict exact-token constraints.
-- Can return conceptually related but lexically unexpected results.
-- Requires embedding compute (`embed_ms`) and model/runtime dependencies.
-
-## Why the Next Mode Exists
-Hybrid search exists to combine lexical precision with semantic recall, so exact matches and intent matches both contribute to ranking.
-
-## When To Use It (Practical Examples)
-- Natural-language discovery (`"movie about redemption after war"`).
-- Support/help search with many paraphrased user questions.
-- Content exploration where user vocabulary varies widely.
 
 ## Request/Response Example
 Request:
@@ -95,6 +102,9 @@ Response fields to read:
   - [`searchVector`](../frontend/src/api.ts#L29)
 - Typed internal row model:
   - [`RetrievedRow`](../backend/app/schemas.py#L76)
+
+## Why the Next Mode Exists
+Hybrid search exists to combine lexical precision with semantic recall, so exact matches and intent matches both contribute to ranking.
 
 ## Cross-Mode Comparison
 For a consolidated comparison table across Full-Text, Semantic, and Hybrid, see:
