@@ -1,4 +1,4 @@
-from app.service import fuse_rankings_rrf
+from app.search.modes.advanced import fuse_rankings_rrf
 
 
 def test_fuse_rankings_rrf_prefers_items_ranked_high_in_both_lists():

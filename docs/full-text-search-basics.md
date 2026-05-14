@@ -74,9 +74,11 @@ Response fields to read:
 - `lesson_takeaway`: short mode summary for demos.
 
 ## Read the Code
-- Backend text query builder and execution:
-  - [`_query_text_rows`](../backend/app/service.py#L296)
-  - [`search_text`](../backend/app/service.py#L345)
+- Backend text query builder and row retrieval:
+  - [`build_text_query`](../backend/app/search/modes/full_text.py#L19)
+  - [`query_text_rows`](../backend/app/search/modes/full_text.py#L35)
+- Service orchestration for text search:
+  - [`RedisVLSearchService.search_text`](../backend/app/search/redis_service.py#L77)
 - API endpoint:
   - [`POST /api/search/text`](../backend/app/main.py#L66)
 - Frontend caller:

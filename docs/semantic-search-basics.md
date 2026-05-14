@@ -77,9 +77,12 @@ Response fields to read:
 
 ## Read the Code
 - Backend vectorization and vector query:
-  - [`_get_vectorizer`](../backend/app/service.py#L152)
-  - [`_query_vector_rows`](../backend/app/service.py#L312)
-  - [`search_vector`](../backend/app/service.py#L358)
+  - [`embed_query`](../backend/app/search/modes/semantic.py#L22)
+  - [`build_vector_query`](../backend/app/search/modes/semantic.py#L29)
+  - [`query_vector_rows`](../backend/app/search/modes/semantic.py#L45)
+- Service orchestration for semantic search:
+  - [`RedisVLSearchService._get_vectorizer`](../backend/app/search/redis_service.py#L43)
+  - [`RedisVLSearchService.search_vector`](../backend/app/search/redis_service.py#L90)
 - API endpoint:
   - [`POST /api/search/vector`](../backend/app/main.py#L78)
 - Frontend caller:

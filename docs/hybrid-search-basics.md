@@ -100,11 +100,13 @@ Response fields to read:
 
 ## Read the Code
 - Weighted hybrid implementation:
-  - [`search_hybrid`](../backend/app/service.py#L371)
-  - [`AggregateHybridQuery` construction](../backend/app/service.py#L386)
+  - [`build_hybrid_query`](../backend/app/search/modes/hybrid.py#L21)
+  - [`query_hybrid_rows`](../backend/app/search/modes/hybrid.py#L42)
+  - [`RedisVLSearchService.search_hybrid`](../backend/app/search/redis_service.py#L103)
 - RRF implementation:
-  - [`fuse_rankings_rrf`](../backend/app/service.py#L35)
-  - [`search_rrf`](../backend/app/service.py#L411)
+  - [`fuse_rankings_rrf`](../backend/app/search/modes/advanced.py#L19)
+  - [`collect_rrf_candidates`](../backend/app/search/modes/advanced.py#L41)
+  - [`RedisVLSearchService.search_rrf`](../backend/app/search/redis_service.py#L131)
 - API endpoints:
   - [`POST /api/search/hybrid`](../backend/app/main.py#L90)
   - [`POST /api/search/advanced/rrf`](../backend/app/main.py#L110)
