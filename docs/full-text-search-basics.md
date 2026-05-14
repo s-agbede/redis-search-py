@@ -76,11 +76,11 @@ Response fields to read:
 ## Read the Code
 - Backend text query builder and row retrieval:
   - [`build_text_query`](../backend/app/search/modes/full_text.py#L19)
-  - [`query_text_rows`](../backend/app/search/modes/full_text.py#L35)
+  - [`query_text_rows`](../backend/app/search/modes/full_text.py#L38)
 - Service orchestration for text search:
-  - [`RedisVLSearchService.search_text`](../backend/app/search/redis_service.py#L77)
+  - [`RedisVLSearchService.search_text`](../backend/app/search/redis_service.py#L83)
 - API endpoint:
-  - [`POST /api/search/text`](../backend/app/main.py#L66)
+  - [`POST /api/search/text`](../backend/app/main.py#L67)
 - Frontend caller:
   - [`searchText`](../frontend/src/api.ts#L25)
 - Related typed row normalization:

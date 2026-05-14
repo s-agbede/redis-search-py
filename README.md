@@ -2,6 +2,12 @@
 
 Guided learning app for exploring full-text, vector, and hybrid search with Redis.
 
+## Architecture
+
+![Redis Search Learning Lab Query Flow](docs/assets/search-architecture.svg)
+
+See the full architecture write-up: [Architecture Diagram](docs/architecture-diagram.md).
+
 ## How It Works
 
 This lab follows the same RedisVL lifecycle for every search mode:
@@ -30,8 +36,7 @@ flowchart LR
 - Frontend: React + TypeScript + Vite
 - Backend: FastAPI + RedisVL
 - Python environment: `uv`
-- Dataset: `movies.json` from workshop-complete branch of:
-  - https://github.com/redis-developer/building-hybrid-search-apps-with-redis/blob/workshop-complete/data/movies.json
+- Dataset: [`movies.json` (workshop-complete)](https://github.com/redis-developer/building-hybrid-search-apps-with-redis/blob/workshop-complete/data/movies.json)
 
 ## Backend
 
@@ -39,7 +44,7 @@ flowchart LR
 cd backend
 UV_CACHE_DIR=.uv-cache uv sync
 UV_CACHE_DIR=.uv-cache uv run pytest -q
-UV_CACHE_DIR=.uv-cache uv run uvicorn app.main:app --reload --port 8000
+UV_CACHE_DIR=.uv-cache uv run uvicorn app.main:app --reload --port 18000
 ```
 
 ## Frontend
@@ -51,7 +56,7 @@ npm run test
 npm run dev
 ```
 
-Set `VITE_API_BASE_URL` if your backend is not running on `http://localhost:8000`.
+By default, the frontend points to `http://127.0.0.1:18000`. Set `VITE_API_BASE_URL` if your backend runs on a different host/port.
 
 ## API Endpoints
 
@@ -69,33 +74,21 @@ Set `VITE_API_BASE_URL` if your backend is not running on `http://localhost:8000
 - [Full-Text Search Basics](docs/full-text-search-basics.md)
 - [Semantic Search Basics](docs/semantic-search-basics.md)
 - [Hybrid Search Basics](docs/hybrid-search-basics.md)
+- [Architecture Diagram](docs/architecture-diagram.md)
 
 ## Logs Guide
 
 Set backend log level with `LAB_LOG_LEVEL` (default: `INFO`):
 
 ```bash
-LAB_LOG_LEVEL=INFO UV_CACHE_DIR=.uv-cache uv run uvicorn app.main:app --reload --port 8000
+LAB_LOG_LEVEL=INFO UV_CACHE_DIR=.uv-cache uv run uvicorn app.main:app --reload --port 18000
 ```
 
 ### What You’ll See
 
-- Startup/bootstrap lifecycle:
-  - `api.lifespan.start ...`
-  - `service.bootstrap.start ...`
-  - `dataset.fetch.start ...`
-  - `dataset.normalize.done ...`
-  - `service.bootstrap.done ...`
-  - `api.lifespan.ready`
-- Per-request API logging:
-  - `api.search.text ...` / `api.search.vector ...` / `api.search.hybrid ...`
-  - `api.search.rrf ...` / `api.search.rerank ...`
-  - `api.overview ...`
-  - `api.similarity ...`
-- Service-level query internals:
-  - `service.query.text.done ...`
-  - `service.query.vector.done ...`
-  - `service.search.<mode>.done ...`
+- Startup/bootstrap lifecycle: `api.lifespan.start`, `service.bootstrap.start`, `dataset.fetch.start`, `dataset.normalize.done`, `service.bootstrap.done`, `api.lifespan.ready`
+- Per-request API logging: `api.search.text`, `api.search.vector`, `api.search.hybrid`, `api.search.rrf`, `api.search.rerank`, `api.overview`, `api.similarity`
+- Service-level query internals: `service.query.text.done`, `service.query.vector.done`, `service.search.<mode>.done`
 
 ### Demo Narrative Tip
 

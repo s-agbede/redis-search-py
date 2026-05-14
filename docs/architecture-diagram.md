@@ -12,7 +12,7 @@ The SVG above is the presentation-accurate version. Use the Mermaid block below 
 
 ```mermaid
 flowchart LR
-    U["1. React UI<br/>User query + filters"] --> A["2. FastAPI API Layer<br/>/api/search/text | /vector | /hybrid | /advanced/rrf"]
+    U["1. React UI<br/>User query + filters"] --> A["2. FastAPI API Layer<br/>/api/search/text | /vector | /hybrid | /advanced/rrf | /advanced/rerank"]
     A --> Q{"3. Mode Router"}
 
     Q --> FT["Full-Text Path<br/>TextQuery<br/>title: 1.25, plot: 1.0"]
