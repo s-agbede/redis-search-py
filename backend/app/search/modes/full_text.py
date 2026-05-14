@@ -30,6 +30,8 @@ def build_text_query(
         filter_expression=build_filter_expression(genres, min_rating),
         return_fields=RETURN_FIELDS,
         return_score=True,
+        # Avoid optional NLTK stopword dependency in dev/runtime environments.
+        stopwords=None,
     )
 
 

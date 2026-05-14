@@ -8,6 +8,7 @@ import {
   searchText,
   searchVector,
 } from "./api";
+import { STORY_STEPS, type StoryStep, type StoryStepId } from "./storyMode";
 import type { DataOverview, SearchPayload, SearchResponse, SimilarityResponse } from "./types";
 
 const CORE_TABS = ["fulltext", "semantic", "hybrid", "compare"] as const;
@@ -45,6 +46,10 @@ function isCoreTab(value: string | null): value is CoreTab {
 
 function isLearnSection(value: string | null): value is LearnSection {
   return value !== null && LEARN_SECTIONS.includes(value as LearnSection);
+}
+
+function isStoryStepId(value: string | null): value is StoryStepId {
+  return value !== null && STORY_STEPS.some((step) => step.id === value);
 }
 
 function formatTimings(timings: Record<string, number>): string {
@@ -194,11 +199,107 @@ function CompareTable({ compareResults }: { compareResults: Partial<Record<CoreM
   );
 }
 
+function StoryModePanel({
+  storyEnabled,
+  step,
+  stepIndex,
+  onToggle,
+  onStepChange,
+}: {
+  storyEnabled: boolean;
+  step: StoryStep;
+  stepIndex: number;
+  onToggle: () => void;
+  onStepChange: (stepId: StoryStepId) => void;
+}) {
+  return (
+    <section className="panel story-panel stack" aria-label="Guided story mode">
+      <div className="story-header">
+        <div className="story-copy">
+          <p className="story-kicker">Guided Story Mode</p>
+          <h2>{step.title}</h2>
+          <p className="story-summary">{step.summary}</p>
+        </div>
+        <button className={`secondary-btn ${storyEnabled ? "active" : ""}`} onClick={onToggle}>
+          {storyEnabled ? "Exit Story Mode" : "Story Mode"}
+        </button>
+      </div>
+
+      <div className="story-steps" role="tablist" aria-label="Story steps">
+        {STORY_STEPS.map((storyStep) => (
+          <button
+            key={storyStep.id}
+            role="tab"
+            aria-selected={storyStep.id === step.id}
+            className={`tab-chip ${storyStep.id === step.id ? "active" : ""}`}
+            onClick={() => onStepChange(storyStep.id)}
+          >
+            {storyStep.title}
+          </button>
+        ))}
+      </div>
+
+      <div className="story-grid">
+        <article className="story-card">
+          <h3>What to notice</h3>
+          <p>{step.whatToNotice}</p>
+        </article>
+        <article className="story-card">
+          <h3>Decision takeaway</h3>
+          <p>{step.decisionTakeaway}</p>
+        </article>
+        <article className="story-card">
+          <h3>Schema note</h3>
+          <p>{step.schemaNote ?? "Keep the schema explanation minimal until it unlocks a new retrieval concept."}</p>
+        </article>
+      </div>
+
+      <article className="story-code-card">
+        <h3>Open next in code</h3>
+        <ul className="story-code-list">
+          {step.codeStops.map((codeStop) => (
+            <li key={`${step.id}-${codeStop.label}`}>
+              <p className="story-code-label">{codeStop.label}</p>
+              <p className="story-code-path">{codeStop.file}</p>
+              <p className="story-code-symbols">{codeStop.symbols.join(" • ")}</p>
+            </li>
+          ))}
+        </ul>
+      </article>
+
+      {step.nextSteps && (
+        <article className="story-next-steps">
+          <h3>Next steps after this demo</h3>
+          <p>{step.nextSteps}</p>
+        </article>
+      )}
+
+      <div className="story-footer">
+        <p className="story-summary">Use the curated step buttons to reapply the demo state any time during the presentation.</p>
+        <div className="story-nav-actions">
+          <button className="mini ghost" onClick={() => onStepChange(STORY_STEPS[Math.max(0, stepIndex - 1)].id)} disabled={stepIndex === 0}>
+            Previous step
+          </button>
+          <button
+            className="mini active"
+            onClick={() => onStepChange(STORY_STEPS[Math.min(STORY_STEPS.length - 1, stepIndex + 1)].id)}
+            disabled={stepIndex === STORY_STEPS.length - 1}
+          >
+            Next step
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   const params = new URLSearchParams(window.location.search);
   const [activeTab, setActiveTab] = useState<CoreTab>(isCoreTab(params.get("tab")) ? (params.get("tab") as CoreTab) : "fulltext");
   const [learnOpen, setLearnOpen] = useState(params.get("learn") === "1");
   const [learnSection, setLearnSection] = useState<LearnSection>(isLearnSection(params.get("section")) ? (params.get("section") as LearnSection) : "data");
+  const [storyEnabled, setStoryEnabled] = useState(params.get("story") === "1");
+  const [storyStepId, setStoryStepId] = useState<StoryStepId>(isStoryStepId(params.get("storyStep")) ? (params.get("storyStep") as StoryStepId) : STORY_STEPS[0].id);
 
   const [query, setQuery] = useState("criminal mastermind");
   const [limit, setLimit] = useState(5);
@@ -220,6 +321,9 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [bootstrapping, setBootstrapping] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const storyStepIndex = STORY_STEPS.findIndex((step) => step.id === storyStepId);
+  const activeStoryStep = STORY_STEPS[Math.max(0, storyStepIndex)];
 
   const payload = useMemo<SearchPayload>(
     () => ({
@@ -244,9 +348,15 @@ export default function App() {
     } else {
       next.delete("section");
     }
+    next.set("story", storyEnabled ? "1" : "0");
+    if (storyEnabled) {
+      next.set("storyStep", storyStepId);
+    } else {
+      next.delete("storyStep");
+    }
     const url = `${window.location.pathname}?${next.toString()}`;
     window.history.replaceState({}, "", url);
-  }, [activeTab, learnOpen, learnSection]);
+  }, [activeTab, learnOpen, learnSection, storyEnabled, storyStepId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -285,6 +395,22 @@ export default function App() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!storyEnabled) return;
+
+    const step = STORY_STEPS.find((item) => item.id === storyStepId) ?? STORY_STEPS[0];
+    setActiveTab(step.tab);
+    setQuery(step.query);
+    setLimit(step.limit);
+    setGenres(step.genres);
+    setMinRating(step.minRating);
+    setAlpha(step.alpha ?? 0.7);
+    setHybridStrategy(step.hybridStrategy ?? "weighted");
+    setRrfK(60);
+    setRrfTextWeight(0.5);
+    setError(null);
+  }, [storyEnabled, storyStepId]);
 
   async function searchByMode(mode: CoreMode, useRrfForHybrid = false): Promise<SearchResponse> {
     if (mode === "text") return searchText(payload);
@@ -409,17 +535,32 @@ export default function App() {
               </button>
             ))}
           </nav>
-          <button
-            className={`secondary-btn ${learnOpen ? "active" : ""}`}
-            onClick={() => setLearnOpen((prev) => !prev)}
-            aria-expanded={learnOpen}
-          >
-            Learn
-          </button>
+          <div className="nav-actions">
+            <button className={`secondary-btn ${storyEnabled ? "active" : ""}`} onClick={() => setStoryEnabled((prev) => !prev)}>
+              Story Mode
+            </button>
+            <button
+              className={`secondary-btn ${learnOpen ? "active" : ""}`}
+              onClick={() => setLearnOpen((prev) => !prev)}
+              aria-expanded={learnOpen}
+            >
+              Learn
+            </button>
+          </div>
         </div>
       </section>
 
       {error && <p className="error">{error}</p>}
+
+      {storyEnabled && (
+        <StoryModePanel
+          storyEnabled={storyEnabled}
+          step={activeStoryStep}
+          stepIndex={Math.max(0, storyStepIndex)}
+          onToggle={() => setStoryEnabled(false)}
+          onStepChange={setStoryStepId}
+        />
+      )}
 
       <section className="panel stack">
         <h2>{TAB_LABELS[activeTab]}</h2>

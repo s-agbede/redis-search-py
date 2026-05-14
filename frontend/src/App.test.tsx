@@ -135,4 +135,41 @@ describe("App", () => {
       expect(window.location.search).toContain("section=similarity");
     });
   });
+
+  it("walks through guided story mode with fixed steps and code stops", async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Story Mode" }));
+
+    expect(screen.getByRole("heading", { name: "Step 1: Full-text baseline" })).toBeInTheDocument();
+    expect(screen.getByDisplayValue("criminal mastermind")).toBeInTheDocument();
+    expect(screen.getByText("Open next in code")).toBeInTheDocument();
+    expect(screen.getByText(/build_text_query/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next step" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Step 2: Full-text failure" })).toBeInTheDocument();
+      expect(screen.getByDisplayValue("a teacher inspires troubled students")).toBeInTheDocument();
+      expect(window.location.search).toContain("story=1");
+      expect(window.location.search).toContain("storyStep=fulltext-failure");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Next step" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Step 3: Semantic rescue" })).toBeInTheDocument();
+      expect(screen.getByText(/embed_query/)).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Semantic" })).toHaveAttribute("aria-selected", "true");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Next step" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Step 4: Hybrid synthesis" })).toBeInTheDocument();
+      expect(screen.getByDisplayValue("spy thriller with emotional depth")).toBeInTheDocument();
+      expect(screen.getByText(/build_hybrid_query/)).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Next steps after this demo" })).toBeInTheDocument();
+    });
+  });
 });
