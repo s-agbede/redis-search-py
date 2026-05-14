@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <style>
+      .title { font: 700 42px 'IBM Plex Sans', Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 500 22px 'IBM Plex Sans', Arial, sans-serif; fill: #334155; }
+      .nodeTitle { font: 700 22px 'IBM Plex Sans', Arial, sans-serif; fill: #0f172a; }
+      .nodeBody { font: 500 18px 'IBM Plex Sans', Arial, sans-serif; fill: #334155; }
+      .chip { font: 700 16px 'IBM Plex Sans', Arial, sans-serif; fill: #1e40af; }
+      .box { fill: #ffffff; stroke: #c9d7ec; stroke-width: 2; rx: 20; ry: 20; }
+      .accent { fill: #eff6ff; stroke: #93c5fd; stroke-width: 2; rx: 14; ry: 14; }
+      .arrow {
+        stroke: #475569;
+        stroke-width: 3.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        marker-end: url(#arrowhead);
+      }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <text x="80" y="90" class="title">Redis Search Learning Lab: Query Flow</text>
+  <text x="80" y="130" class="subtitle">Same dataset, different retrieval paths (Full-Text, Semantic, Hybrid/RRF)</text>
+
+  <rect x="80" y="200" width="300" height="120" class="box"/>
+  <text x="110" y="246" class="nodeTitle">1. React UI</text>
+  <text x="110" y="278" class="nodeBody">User query + filters</text>
+
+  <rect x="450" y="200" width="360" height="120" class="box"/>
+  <text x="480" y="246" class="nodeTitle">2. FastAPI Endpoints</text>
+  <text x="480" y="278" class="nodeBody">/text, /vector, /hybrid, /advanced/rrf</text>
+
+  <rect x="900" y="160" width="620" height="520" class="box"/>
+  <text x="930" y="210" class="nodeTitle">3. RedisVL Retrieval Engine</text>
+
+  <rect x="940" y="250" width="540" height="90" class="accent"/>
+  <text x="965" y="286" class="chip">Full-Text Path</text>
+  <text x="965" y="314" class="nodeBody">TextQuery (title: 1.25, plot: 1.0) -> BM25-style lexical rank</text>
+
+  <rect x="940" y="365" width="540" height="90" class="accent"/>
+  <text x="965" y="401" class="chip">Semantic Path</text>
+  <text x="965" y="429" class="nodeBody">Embed query -> VectorQuery on plot_embedding (meaning similarity)</text>
+
+  <rect x="940" y="480" width="540" height="90" class="accent"/>
+  <text x="965" y="516" class="chip">Hybrid / RRF Path</text>
+  <text x="965" y="544" class="nodeBody">AggregateHybridQuery (alpha) or RRF rank fusion of text + vector</text>
+
+  <rect x="470" y="430" width="360" height="140" class="box"/>
+  <text x="500" y="476" class="nodeTitle">4. Redis Index</text>
+  <text x="500" y="508" class="nodeBody">title, plot, genres, rating,</text>
+  <text x="500" y="534" class="nodeBody">plot_embedding (vector)</text>
+
+  <rect x="80" y="655" width="750" height="150" class="box"/>
+  <text x="110" y="686" class="nodeTitle">5. Response Mapper</text>
+  <text x="110" y="718" class="nodeBody">results[], score, explanation, timings</text>
+  <text x="110" y="744" class="nodeBody">Returned to UI for side-by-side mode comparison</text>
+
+  <path d="M 392 260 L 438 260" class="arrow"/>
+  <path d="M 822 260 L 888 260" class="arrow"/>
+  <path d="M 900 430 L 860 430 L 860 500 L 830 500" class="arrow"/>
+  <path d="M 650 582 L 650 620 L 650 655" class="arrow"/>
+  <path d="M 80 730 L 40 730 L 40 260 L 80 260" class="arrow"/>
+</svg>
