@@ -76,6 +76,11 @@ By default, the frontend points to `http://127.0.0.1:18000`. Set `VITE_API_BASE_
 - [Hybrid Search Basics](docs/hybrid-search-basics.md)
 - [Architecture Diagram](docs/architecture-diagram.md)
 
+## Other Workshops
+
+- Workshop for Java developers: [building-hybrid-search-apps-with-redis](https://github.com/redis-developer/building-hybrid-search-apps-with-redis/)
+- Workshop for Python developers: [full-stack-redis-ai-workshop](https://github.com/redis-developer/full-stack-redis-ai-workshop)
+
 ## Logs Guide
 
 Set backend log level with `LAB_LOG_LEVEL` (default: `INFO`):
